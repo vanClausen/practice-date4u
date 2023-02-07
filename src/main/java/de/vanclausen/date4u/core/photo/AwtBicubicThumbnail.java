@@ -1,16 +1,23 @@
 package de.vanclausen.date4u.core.photo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.concurrent.Future;
 
 @Service
 @Primary
 public class AwtBicubicThumbnail implements Thumbnail {
+
+  private final Logger log = LoggerFactory.getLogger( getClass() );
+
   private static BufferedImage create( BufferedImage source,
                                        int width, int height ) {
     double thumbRatio = (double) width / height;
@@ -28,11 +35,14 @@ public class AwtBicubicThumbnail implements Thumbnail {
   }
 
   @Override
-  public byte[] thumbnail( byte[] imageBytes ) {
+  public Future<byte[]> thumbnail( byte[] imageBytes ) {
+
     try ( InputStream is = new ByteArrayInputStream( imageBytes );
           ByteArrayOutputStream baos = new ByteArrayOutputStream() ) {
+      log.info( "thumbnail-start" );
       ImageIO.write( create( ImageIO.read( is ), 200, 200 ), "jpg", baos );
-      return baos.toByteArray();
+      log.info( "thumbnail-finish" );
+      return new AsyncResult<>( baos.toByteArray() );
     }
     catch ( IOException e ) {
       throw new UncheckedIOException( e );

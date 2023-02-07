@@ -1,11 +1,13 @@
 package de.vanclausen.date4u.core.photo;
 
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.concurrent.Future;
 
 @Service
 public class AwtNearestNeighborThumbnail implements Thumbnail {
@@ -26,11 +28,11 @@ public class AwtNearestNeighborThumbnail implements Thumbnail {
   }
 
   @Override
-  public byte[] thumbnail( byte[] imageBytes ) {
+  public Future<byte[]> thumbnail( byte[] imageBytes ) {
     try ( InputStream is = new ByteArrayInputStream( imageBytes );
           ByteArrayOutputStream baos = new ByteArrayOutputStream() ) {
       ImageIO.write( create( ImageIO.read( is ), 200, 200 ), "jpg", baos );
-      return baos.toByteArray();
+      return new AsyncResult<>( baos.toByteArray() );
     }
     catch ( IOException e ) {
       throw new UncheckedIOException( e );
