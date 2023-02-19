@@ -26,6 +26,8 @@ public class RandomPhoto {
     String url = "https://randomuser.me/api/?inc=picture&noinfo&gender=" + gender;
     try ( InputStream is = new URL( url ).openStream() ) {
       return StreamUtils.copyToString( is, StandardCharsets.UTF_8 );
+    } finally {
+      attemptCounter = 1;
     }
   }
 }
