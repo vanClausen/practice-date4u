@@ -44,7 +44,7 @@ public class PhotoService {
 
   @Cacheable( cacheNames = "date4u.photo", key = "#photo.name" )
   public Optional<byte[]> download( @Valid Photo photo ) {
-    return download( photo.name );
+    return download( photo.getName() );
   }
 
   public String upload( byte[] imageBytes ) {
