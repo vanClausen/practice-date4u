@@ -38,10 +38,10 @@ public class Profile {
   private Unicorn unicorn;
 
   @OneToMany( mappedBy = "profile", fetch = FetchType.EAGER, cascade = CascadeType.ALL )
-  @OrderBy( "is_profile_photo DESC, created DESC" )
+//  @OrderBy( "is_profile_photo DESC, created DESC" )
   private List<Photo> photos;
 
-  @ManyToMany( fetch = FetchType.EAGER )
+  @ManyToMany( /*fetch = FetchType.EAGER*/ )
   @JoinTable(
       name = "Likes",
       joinColumns = @JoinColumn( name = "liker_fk" ),
@@ -49,7 +49,7 @@ public class Profile {
   )
   private Set<Profile> profilesThatILike = new HashSet<>();
 
-  @ManyToMany( fetch = FetchType.EAGER )
+  @ManyToMany( /*fetch = FetchType.EAGER*/ )
   @JoinTable(
       name = "Likes",
       joinColumns = @JoinColumn( name = "likee_fk" ),
