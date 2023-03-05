@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface UnicornRepository extends JpaRepository<Unicorn, Long> {
 
   @Query( "SELECT u FROM Unicorn u WHERE u.email LIKE %:emailAddress%" )
-  List<Optional<Unicorn>> findUnicornByEmail( String emailAddress);
+  List<Optional<Unicorn>> findUnicornByEmail( String emailAddress );
 
 }
