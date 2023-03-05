@@ -1,9 +1,8 @@
 package de.vanclausen.date4u.interfaces.shell;
 
-import de.vanclausen.date4u.core.profile.Profile;
-import de.vanclausen.date4u.core.profile.ProfileRepository;
-import de.vanclausen.date4u.core.profile.Unicorn;
-import de.vanclausen.date4u.core.profile.UnicornRepository;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import de.vanclausen.date4u.core.profile.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Lazy;
@@ -29,7 +28,7 @@ public class RepositoryCommands {
     this.unicorns = unicorns;
   }
 
-  @ShellMethod("Display all profiles")
+  @ShellMethod( "Display all profiles" )
   public List<Profile> list() {
     return currentPage.get().getContent();
   }
@@ -46,7 +45,7 @@ public class RepositoryCommands {
     return list();
   }
 
-  @ShellMethod( "Update last seen")
+  @ShellMethod( "Update last seen" )
   public Optional<Profile> updateLastSeen( long id ) {
     Optional<Profile> maybeProfile = profiles.findById( id );
     maybeProfile.ifPresent( profile -> {
@@ -57,16 +56,31 @@ public class RepositoryCommands {
   }
 
   @ShellMethod( "Show profiles last seen after year" )
-  public String afterYear(int year) {
-    return profiles.findProfileLastSeenAfter( Year.of( year ) ).toString();
+  public String afterYear( int year ) {
+    return profiles.findByLastseenGreaterThan( Year.of( year ).atDay( 1 ).atStartOfDay() ).toString();
   }
 
   @ShellMethod( "Find unicorn by mail" )
-  public String findByMail(String mail) {
-    return unicorns.findUnicornByEmail( mail )
+  public String findByMail( String mail ) {
+    return unicorns.findUnicornByEmailContaining( mail )
         .stream()
         .map( o -> o.map( u -> u.getEmail() ).orElse( "Nothing found for \"%s\"".formatted( mail ) ) )
+        .toList()
         .toString();
   }
 
+  @ShellMethod( "Display profiles with longer horns" )
+  public Iterable<Profile> findLongHornProfiles() {
+    QProfile profile = QProfile.profile;
+
+
+    BooleanExpression profileHasHornlengthGt1 = profile.hornlength.gt( 1 );
+    BooleanExpression profileIsBi = profile.attractedToGender.isNull();
+
+    BooleanBuilder booleanBuilder = new BooleanBuilder();
+    booleanBuilder.and( profileHasHornlengthGt1 );
+    booleanBuilder.and( profileIsBi );
+
+    return profiles.findAll( booleanBuilder );
+  }
 }
